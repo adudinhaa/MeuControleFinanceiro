@@ -5,7 +5,7 @@ const $ = (s) => document.querySelector(s);
 
 let categorias = JSON.parse(localStorage.getItem("categorias")) || [
     { id: 1, nome: "Alimentação", tipo: "flexível", cor: "#39FF14", limite: 500 },
-    { id: 2, nome: "Transporte", tipo: "fixo", cor: "#33CFFF", limite: 200 }
+    { id: 2, nome: "Transporte", tipo: "flexível", cor: "#33CFFF", limite: 200 }
 ];
 let gastos = JSON.parse(localStorage.getItem("gastos")) || [];
 let ganhosExtras = JSON.parse(localStorage.getItem("ganhosExtras")) || []; // ADIÇÃO
