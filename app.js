@@ -497,7 +497,7 @@ window.renderHistorico = function() {
 };
 
 // ==========================================
-// 8. CONFIGURAÇÕES E NOVO MENU DE NOTIFICAÇÕES (CORRIGIDO)
+// 8. CONFIGURAÇÕES E NOVO MENU DE NOTIFICAÇÕES (ATUALIZADO COM BACKUP)
 // ==========================================
 window.drawConfiguracoes = function() {
     $("#mainContainer").innerHTML = `
@@ -547,10 +547,72 @@ window.drawConfiguracoes = function() {
             <p style="font-size:0.8rem; margin-bottom:10px; opacity:0.8">Tema do Sistema:</p>
             <button onclick="window.alterarTema('light')">Claro</button>
             <button onclick="window.alterarTema('dark')">Escuro</button>
+        </div>
+
+        <div class="card">
+            <h3>Segurança dos Dados</h3>
+            <p style="font-size:0.8rem; margin-bottom:10px; opacity:0.8">Salve uma cópia ou recupere um backup:</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="window.exportarDados()" style="flex:1; background:#33CFFF; color:#000; font-weight:bold">📥 Baixar Backup</button>
+                <button onclick="window.importarDados()" style="flex:1; background:#FFD700; color:#000; font-weight:bold">📤 Subir Backup</button>
+            </div>
+            <input type="file" id="importFile" style="display:none" onchange="window.processarImport(event)">
         </div>`;
     
     window.toggleStrat(metaData.estrategia);
 };
+
+// --- FUNÇÕES DE LOGICA DO BACKUP ---
+
+window.exportarDados = () => {
+    const backup = {
+        categorias,
+        gastos,
+        ganhosExtras,
+        config,
+        metaData,
+        dataExport: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `backup_financeiro_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Backup baixado com sucesso!");
+};
+
+window.importarDados = () => {
+    if(confirm("Ao importar, seus dados atuais serão substituídos pelo arquivo. Deseja continuar?")) {
+        document.getElementById("importFile").click();
+    }
+};
+
+window.processarImport = (event) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importado = JSON.parse(e.target.result);
+            if (importado.categorias) categorias = importado.categorias;
+            if (importado.gastos) gastos = importado.gastos;
+            if (importado.ganhosExtras) ganhosExtras = importado.ganhosExtras;
+            if (importado.config) config = importado.config;
+            if (importado.metaData) metaData = importado.metaData;
+            
+            saveAll();
+            showToast("Dados restaurados! Reiniciando...");
+            setTimeout(() => location.reload(), 1500);
+        } catch (err) {
+            showToast("Erro ao ler o arquivo de backup!", "erro");
+        }
+    };
+    reader.readAsText(event.target.files[0]);
+};
+
+// --- RESTO DAS SUAS FUNÇÕES ORIGINAIS ---
 
 window.saveNotifConfig = () => {
     config.notifs.limite = $("#notifLim").checked;
@@ -612,11 +674,9 @@ window.alterarTema = (t) => {
     config.tema = t;
     document.body.className = t;
     saveAll();
-    // Forçar redesenho caso esteja em uma view com canvas
     const currentView = document.querySelector("nav a.active")?.getAttribute("href") || "";
     window.loadView(currentView);
 };
-
 // ==========================================
 // 9. NAVEGAÇÃO
 // ==========================================
@@ -639,4 +699,59 @@ document.addEventListener("click", (el) => {
 window.onload = () => {
     document.body.className = config.tema;
     window.loadView("dashboard");
+};
+// 1. FUNÇÃO PARA EXPORTAR (BAIXAR)
+window.exportarDados = () => {
+    const backup = {
+        categorias,
+        gastos,
+        ganhosExtras,
+        config,
+        metaData,
+        versao: "1.0",
+        dataExport: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    
+    a.href = url;
+    a.download = `backup_financeiro_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Backup baixado com sucesso!");
+};
+
+// 2. FUNÇÃO PARA ABRIR O SELETOR DE ARQUIVO
+window.importarDados = () => {
+    if(confirm("Ao importar, seus dados atuais serão substituídos. Deseja continuar?")) {
+        document.getElementById("importFile").click();
+    }
+};
+
+// 3. FUNÇÃO PARA PROCESSAR O ARQUIVO SUBIDO
+window.processarImport = (event) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importado = JSON.parse(e.target.result);
+            
+            // Atualiza as variáveis globais
+            if (importado.categorias) categorias = importado.categorias;
+            if (importado.gastos) gastos = importado.gastos;
+            if (importado.ganhosExtras) ganhosExtras = importado.ganhosExtras;
+            if (importado.config) config = importado.config;
+            if (importado.metaData) metaData = importado.metaData;
+            
+            saveAll();
+            showToast("Dados restaurados! Reiniciando...", "sucesso");
+            setTimeout(() => location.reload(), 1500);
+        } catch (err) {
+            showToast("Erro ao ler o arquivo de backup!", "erro");
+        }
+    };
+    reader.readAsText(event.target.files[0]);
 };
