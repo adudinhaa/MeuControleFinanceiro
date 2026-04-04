@@ -166,42 +166,61 @@ canvas {
 }
 
 @media (max-width: 600px) {
-  
-  /* 1. Melhora o espaço lateral no celular */
+  /* 1. Ajuste de espaçamento global */
   main {
-    padding: 10px; 
+    padding: 12px; 
   }
 
-  /* 2. Impede que o menu fique "espremido" ou saia da tela */
+  /* 2. Menu mais compacto */
+  header {
+    padding: 10px 5px;
+  }
+  
   header nav ul {
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap; 
-    justify-content: center;
   }
 
-  /* 3. O SEGREDO DA TABELA: 
-     Isso cria uma "janela" de rolagem apenas dentro do card.
-     Assim, a tabela pode ser larga, mas o SITE não fica balançando de um lado pro outro. */
+  header nav ul li a {
+    font-size: 0.8rem; /* Diminui um pouco o texto do menu */
+  }
+
+  /* 3. Títulos e Cards menos "esparramados" */
   .card {
+    padding: 15px; /* Reduzi de 20px para 15px */
+    margin-bottom: 15px;
+    border-radius: 8px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Rolagem suave no iPhone */
   }
 
-  table {
-    min-width: 400px; /* Garante que os dados tenham espaço mínimo */
+  h3 {
+    font-size: 1.1rem; /* Título do card menor */
+    margin-top: 0;
   }
 
-  /* 4. Botões e Inputs Maiores:
-     No PC o mouse é preciso. No celular, o dedo precisa de alvos maiores. */
+  /* 4. O ajuste que você queria: Botões e Inputs Proporcionais */
   input, select, button {
-    min-height: 48px; 
-    font-size: 16px; /* Evita que o iOS dê zoom automático ao clicar no input */
+    min-height: 40px; /* Reduzi de 48px para 40px - mais elegante */
+    font-size: 14px;  /* Fonte padrão de sistema mobile */
+    margin: 8px 0;    /* Diminuí a distância entre eles */
+    padding: 8px 12px;
   }
-}
 
-/* Essa regra abaixo é a única que vale para os dois, 
-   garantindo que o gráfico nunca seja maior que a largura da tela */
-canvas {
-  max-width: 100% !important;
-  height: auto !important;
+  /* Ajuste específico para os botões de rádio (aquelas bolas brancas/azuis) */
+  input[type="radio"] {
+    width: 18px !important;
+    height: 18px !important;
+    min-height: 18px !important;
+    margin: 0;
+  }
+
+  /* 5. Ajuste para a tabela não quebrar o layout */
+  table {
+    min-width: 450px; 
+    font-size: 0.85rem;
+  }
+  
+  table td, table th {
+    padding: 8px 4px;
+  }
 }
